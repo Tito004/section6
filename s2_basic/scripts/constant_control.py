@@ -17,13 +17,15 @@ class Heartbeat(Node):
         self.hb_counter = 0
 
             # create publisher with: self.create_publisher(<msg type>, <topic>, <qos>)
-        self.hb_pub = self.create_publisher(Twist, "/heartbeat", 10)
+        self.hb_pub = self.create_publisher(Twist, "/cmd_vel", 10)
     
         # create a timer with: self.create_timer(<second>, <callback>)
         self.hb_timer = self.create_timer(0.2, self.hb_callback)
 
                 # create subscription with: self.create_subscription(<msg type>, <topic>, <callback>, <qos>)
         self.motor_sub = self.create_subscription(Bool, "/health/motor", self.health_callback, 10)
+        self.motor_sub = self.create_subscription(Bool, "/kill", self.kill_callback, 10)
+          
 
     def hb_callback(self) -> None:
         """
@@ -47,6 +49,17 @@ class Heartbeat(Node):
         if not msg.data:
             self.get_logger().fatal("Heartbeat stopped")
             self.hb_timer.cancel()
+
+    def kill_callback(self, msg: Bool) -> None:
+        """
+        Sensor health callback triggered by subscription
+        """
+        self.hb_timer.cancel()
+        msg = Twist()  # 0 initialize everything by default
+        msg.linear.x = float(0)  # set this to be the linear velocity
+        msg.angular.z = float(0) # set this to be the angular velocity
+        self.hb_pub.publish(msg)
+        
 
 
 if __name__ == "__main__":

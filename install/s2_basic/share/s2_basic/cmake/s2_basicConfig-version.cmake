@@ -1,0 +1,1 @@
+/home/aa274/autonomy_ws/src/section6/build/s2_basic/ament_cmake_core/s2_basicConfig-version.cmake
